@@ -323,8 +323,8 @@ Expected behavior:
   - Result `0` for valid commands.
   - Result `1`, `2` or `3` for injected/fake frames.
 
-> ✅ **Screenshot placeholder #2 – Whitelist behavior**  
-> _Capture a trace showing `0x120` and `0x180` present on the bus, but Node C’s LED and ACK logic only reacting to `0x040`, `0x081`, `0x082`. Ideally, annotate that C ignores telemetry._
+![Whitelist behavior](images/2_1.jpg)
+![Whitelist behavior](images/2_2.jpg)
 
 ---
 
@@ -425,8 +425,7 @@ This is the first layer of defense against unwanted traffic and a way to reduce 
     - `CmdID` and `Seq` echoed.
     - `Result = 0` (success).
 
-> ✅ **Screenshot placeholder #5 – Normal command and ACK**  
-> _Capture a trace showing a 0x040 frame followed by a 0x041 frame. Zoom in enough to display data bytes. Annotate `Result = 0`._
+![Normal command and ACK](images/6_no_err.jpg)
 
 ---
 
@@ -454,8 +453,7 @@ This is the first layer of defense against unwanted traffic and a way to reduce 
 
 - From the controller’s point of view, the command is **not applied** even though it passed CAN arbitration and was delivered on the bus.
 
-> ✅ **Screenshot placeholder #6 – Fake command and ERR**  
-> _Capture a trace of fake 0x040 followed by 0x041 with `Result != 0`. Zoom in to show bytes and highlight which check failed (Token/CRC/Version)._
+![Fake command and ERR](images/6_err.jpg)
 
 ---
 
@@ -478,31 +476,38 @@ This is the first layer of defense against unwanted traffic and a way to reduce 
   - **Still** only wakes on `0x040`, `0x081`, `0x082`.
   - No spike in CPU/IRQ events from telemetry.
 
-> ✅ **Screenshot placeholder #7 – Telemetry flood and bus load**  
-> _Capture a trace with very frequent 0x120 frames. Include a measurement of frame period or bus utilization. Annotate that Node C remains unaffected due to filtering._
+![Telemetry flood and bus load 0x120](images/7_1.jpg)
+![Telemetry flood and bus load 0x180](images/7_2.jpg)
 
 ---
 
+
 ## 7. Bus Load Estimation
 
-For a standard 11-bit CAN frame with 8 data bytes at 500 kbit/s, the frame on-wire duration is approximately:
+For a standard 11-bit CAN frame with 8 data bytes at 500 kbit/s, the on-wire duration is approximately **250 μs per frame** (typical value with moderate bit-stuffing).
 
-- **~240–270 μs per frame** (depending on exact bit-stuffing overhead).
+In our actual configuration, frame rates are:
 
-Approximate bus load:
+- GPS telemetry (`0x120`): **100 Hz**
+- Environment telemetry (`0x180`): **1 Hz**
+- Heartbeat A (`0x081`): **1 per 2.7 s ≈ 0.37 Hz**
+- Heartbeat B (`0x082`): **1 Hz**
+- Commands (`0x040`): **1 Hz**
 
-\[
-U \approx \frac{N_{\text{frames}} \cdot t_{\text{frame}}}{T_{\text{window}}}
-\]
+Total number of frames per second:
 
-Example (nominal operation):
+N_frames ≈ 100 + 1 + 0.37 + 1 + 1 ≈ 103.4 frames/s
 
-- GPS telemetry: 10 Hz (A, `0x120`).
-- Env telemetry: 1 Hz (B, `0x180`).
-- Heartbeats: 2 Hz total (`0x081`, `0x082`).
-- Commands: low frequency (few Hz at most).
+Bus load approximation:
 
-This keeps bus load **comfortably below ~50%**, leaving headroom for bursts and retries.
+U ≈ (N_frames × t_frame) / T_window
+U ≈ (103.4 × 0.00025) / 1
+U ≈ 0.0258  →  2.6%
+
+**Final result:**  
+The bus load of the system is only **~2.6%**, which is extremely low for 500 kbit/s CAN.  
+This leaves more than **97% free bandwidth** for bursts, retries, diagnostics, or stress-testing.
+
 
 ---
 
