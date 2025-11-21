@@ -47,8 +47,117 @@ The network demonstrates:
   - Short stubs from each node to the main trunk.
   - Common ground shared between all three nodes and the logic analyzer.
 
-> ✅ **Screenshot placeholder #1 – Bus topology / wiring diagram**  
-> _Capture or draw a simple diagram showing Node A, Node B, Node C, the two 120 Ω resistors, and the CANH/CANL wiring._
+───────────────────────────────────────────────────────────────────────────────
+                          CAN NETWORK WIRING DIAGRAM
+───────────────────────────────────────────────────────────────────────────────
+
+                            [ 120 Ω TERMINATOR ]
+                              ┌────────────────┐
+                              │  Between CANH  │
+                              │     and CANL   │
+                              └────────────────┘
+                                       │
+                                       │
+                                     CAN BUS
+                                       │
+                                       │
+                               ┌──────────────┐
+                               │    Node A    │
+                               │ NUCLEO-F446RE│
+                               └──────────────┘
+                                   MCU ↔ Transceiver A
+                                   --------------------
+                                   3V3  ─────────→ VCC
+                                   GND  ─────────→ GND
+                                   CAN1_TX (PB9/PA12) ─→ TXD/D
+                                   CAN1_RX (PB8/PA11) ─→ RXD/R
+                                   STB/RS ───────→ GND (normal mode)
+
+                                   Transceiver A ↔ CAN Bus
+                                   -----------------------
+                                   CANH ────────────────┐
+                                   CANL ────────────────┘
+                                   (One 120Ω terminator here)
+
+                                   Optional Sensors (GPS)
+                                   -----------------------
+                                   GPS VCC ─────────→ 3V3/5V
+                                   GPS GND ─────────→ GND
+                                   GPS TX  ─────────→ PA3 (USART RX)
+                                   GPS RX  ─────────→ PA2 (USART TX)
+
+
+                                       │
+                                       │  (shared CANH/CANL + shared GND)
+                                       ▼
+
+                               ┌──────────────┐
+                               │    Node B    │
+                               │ Bluepill F103│
+                               └──────────────┘
+                                   MCU ↔ Transceiver B
+                                   --------------------
+                                   3V3  ─────────→ VCC
+                                   GND  ─────────→ GND
+                                   PA12 (CAN_TX) ─→ TXD/D
+                                   PA11 (CAN_RX) ─→ RXD/R
+                                   STB/RS ───────→ GND
+
+                                   Transceiver B ↔ CAN Bus
+                                   -----------------------
+                                   CANH ────────────────┐
+                                   CANL ────────────────┘
+                                   (NO terminator here)
+
+                                   Optional Sensors (Env)
+                                   -----------------------
+                                   I2C_SCL (PB6) ─→ SCL (BME280)
+                                   I2C_SDA (PB7) ─→ SDA (BME280)
+                                   LDR Divider ─→ ADC Pin (e.g., PA0)
+
+
+                                       │
+                                       │  (shared CANH/CANL + shared GND)
+                                       ▼
+
+                               ┌──────────────┐
+                               │    Node C    │
+                               │ NUCLEO-F446RE│
+                               └──────────────┘
+                                   MCU ↔ Transceiver C
+                                   --------------------
+                                   3V3  ─────────→ VCC
+                                   GND  ─────────→ GND
+                                   CAN1_TX (PB9/PA12) ─→ TXD/D
+                                   CAN1_RX (PB8/PA11) ─→ RXD/R
+                                   STB/RS ───────→ GND
+
+                                   Transceiver C ↔ CAN Bus
+                                   -----------------------
+                                   CANH ────────────────┐
+                                   CANL ────────────────┘
+                                   (Second 120Ω terminator here)
+
+                                   Status LED
+                                   ----------
+                                   PA5 → On-board LD2 (blinks on commands/HB)
+
+
+───────────────────────────────────────────────────────────────────────────────
+                    Logic Analyzer (Optional Connections)
+───────────────────────────────────────────────────────────────────────────────
+
+ LA GND  ─────────→ Shared GND (any node)
+ LA CH0  ─────────→ Node B TX (PA12 or transceiver TXD)
+ LA CH1  ─────────→ Node A TX (PB9/PA12 or TXD)
+ LA CH2  ─────────→ Node C TX (PB9/PA12 or TXD)
+ LA CH3  ─────────→ CANH (optional raw-bus capture)
+
+ Decoder Settings:
+   - Protocol: CAN
+   - Speed: 500000 bit/s
+   - ID: Standard (11-bit)
+───────────────────────────────────────────────────────────────────────────────
 
 ---
 
@@ -276,9 +385,6 @@ This is the first layer of defense against unwanted traffic and a way to reduce 
   - `0x041` from C in response to each `0x040`.
 - When `0x040` and `0x120` start “at the same time”, **`0x040` wins arbitration** (starts transmitting immediately), and `0x120` is delayed.
 
-> ✅ **Screenshot placeholder #3 – Arbitration 0x040 vs 0x120**  
-> _Capture a zoomed-in trace showing `0x040` and `0x120` arbitration: they begin together, `0x040` continues, and `0x120` is postponed._
-
 ---
 
 ### 6.2 Scenario 2 — Whitelist Filtering on Node C
@@ -300,9 +406,6 @@ This is the first layer of defense against unwanted traffic and a way to reduce 
 - Node C:
   - DOES NOT generate extra activity for `0x120` / `0x180`.
   - Only reacts (LED + ACK) on `0x040` and heartbeats.
-
-> ✅ **Screenshot placeholder #4 – Telemetry vs filters**  
-> _Capture a few seconds of bus traffic with 0x120 and 0x180 present, and annotate that Node C’s LED pattern shows no reaction to these IDs._
 
 ---
 
@@ -405,9 +508,6 @@ Example (nominal operation):
 - Commands: low frequency (few Hz at most).
 
 This keeps bus load **comfortably below ~50%**, leaving headroom for bursts and retries.
-
-> ✅ **Screenshot placeholder #8 – Bus load calculation**  
-> _Capture a logic analyzer window where `N_frames` and time window `T` are visible. Use this screenshot to support the bus-load calculation in the report._
 
 ---
 
