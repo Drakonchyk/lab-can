@@ -222,6 +222,9 @@ Values come from the GPS module and are updated at 10 Hz.
 
 Values are sampled from real temperature, pressure/humidity, and light sensors at ~1 Hz.
 
+
+![Telemetry flood and bus load 0x120](images/7_1.jpg)
+![Telemetry flood and bus load 0x180](images/7_2.jpg)
 ---
 
 ### 3.3 Command Frame — ID `0x040` (Node A → Node C)
@@ -323,8 +326,7 @@ Expected behavior:
   - Result `0` for valid commands.
   - Result `1`, `2` or `3` for injected/fake frames.
 
-![Whitelist behavior](images/2_1.jpg)
-![Whitelist behavior](images/2_2.jpg)
+
 
 ---
 
@@ -476,9 +478,8 @@ This is the first layer of defense against unwanted traffic and a way to reduce 
   - **Still** only wakes on `0x040`, `0x081`, `0x082`.
   - No spike in CPU/IRQ events from telemetry.
 
-![Telemetry flood and bus load 0x120](images/7_1.jpg)
-![Telemetry flood and bus load 0x180](images/7_2.jpg)
-
+![Whitelist behavior](images/2_1.jpg)
+![Whitelist behavior](images/2_2.jpg)
 ---
 
 
