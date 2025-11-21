@@ -47,10 +47,7 @@ The network demonstrates:
   - Short stubs from each node to the main trunk.
   - Common ground shared between all three nodes and the logic analyzer.
 
-───────────────────────────────────────────────────────────────────────────────
                           CAN NETWORK WIRING DIAGRAM
-───────────────────────────────────────────────────────────────────────────────
-
                             [ 120 Ω TERMINATOR ]
                               ┌────────────────┐
                               │  Between CANH  │
@@ -143,9 +140,8 @@ The network demonstrates:
                                    PA5 → On-board LD2 (blinks on commands/HB)
 
 
-───────────────────────────────────────────────────────────────────────────────
+
                     Logic Analyzer (Optional Connections)
-───────────────────────────────────────────────────────────────────────────────
 
  LA GND  ─────────→ Shared GND (any node)
  LA CH0  ─────────→ Node B TX (PA12 or transceiver TXD)
@@ -157,7 +153,6 @@ The network demonstrates:
    - Protocol: CAN
    - Speed: 500000 bit/s
    - ID: Standard (11-bit)
-───────────────────────────────────────────────────────────────────────────────
 
 ---
 
