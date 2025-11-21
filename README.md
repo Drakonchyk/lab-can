@@ -47,7 +47,7 @@ The network demonstrates:
   - Short stubs from each node to the main trunk.
   - Common ground shared between all three nodes and the logic analyzer.
 
-                          CAN NETWORK WIRING DIAGRAM
+### CAN NETWORK WIRING DIAGRAM
                             [ 120 Ω TERMINATOR ]
                               ┌────────────────┐
                               │  Between CANH  │
@@ -141,13 +141,13 @@ The network demonstrates:
 
 
 
-                    Logic Analyzer (Optional Connections)
+### Logic Analyzer (Optional Connections)
 
- LA GND  ─────────→ Shared GND (any node)
- LA CH0  ─────────→ Node B TX (PA12 or transceiver TXD)
- LA CH1  ─────────→ Node A TX (PB9/PA12 or TXD)
- LA CH2  ─────────→ Node C TX (PB9/PA12 or TXD)
- LA CH3  ─────────→ CANH (optional raw-bus capture)
+ LA GND  -> Shared GND
+ LA CH0  -> Node B TX 
+ LA CH1  -> Node A TX 
+ LA CH2  -> Node C TX 
+ LA CH3  -> Node A RX 
 
  Decoder Settings:
    - Protocol: CAN
