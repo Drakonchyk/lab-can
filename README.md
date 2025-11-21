@@ -222,9 +222,6 @@ Values come from the GPS module and are updated at 10 Hz.
 
 Values are sampled from real temperature, pressure/humidity, and light sensors at ~1 Hz.
 
-
-![Telemetry flood and bus load 0x120](images/7_1.jpg)
-![Telemetry flood and bus load 0x180](images/7_2.jpg)
 ---
 
 ### 3.3 Command Frame — ID `0x040` (Node A → Node C)
@@ -403,6 +400,10 @@ This is the first layer of defense against unwanted traffic and a way to reduce 
 - Node C:
   - DOES NOT generate extra activity for `0x120` / `0x180`.
   - Only reacts (LED + ACK) on `0x040` and heartbeats.
+
+
+![Telemetry flood and bus load 0x120](images/7_1.jpg)
+![Telemetry flood and bus load 0x180](images/7_2.jpg)
 
 ---
 
